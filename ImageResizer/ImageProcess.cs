@@ -116,21 +116,7 @@ namespace ImageResizer
         /// <returns></returns>
         private Task<Bitmap> ProcessBitmapAsync(Bitmap img, int srcWidth, int srcHeight, int newWidth, int newHeight)
         {
-            return Task.Run(() =>
-            {
-                Bitmap resizedbitmap = new Bitmap(newWidth, newHeight);
-                using (Graphics g = Graphics.FromImage(resizedbitmap))
-                {
-                    g.InterpolationMode = InterpolationMode.High;
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-                    g.Clear(Color.Transparent);
-                    g.DrawImage(img,
-                        new Rectangle(0, 0, newWidth, newHeight),
-                        new Rectangle(0, 0, srcWidth, srcHeight),
-                        GraphicsUnit.Pixel);
-                }
-                return resizedbitmap;
-            });
+            return Task.Run(() => ProcessBitmap(img, srcWidth, srcHeight, newWidth, newHeight));
         }
         private Bitmap ProcessBitmap(Bitmap img, int srcWidth, int srcHeight, int newWidth, int newHeight)
         {
