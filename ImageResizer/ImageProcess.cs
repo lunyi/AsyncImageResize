@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ImageResizer
@@ -54,7 +57,15 @@ namespace ImageResizer
             var tasks = allFiles.Select(filePath => Task.Factory.StartNew(() => ProcessImageAsync(filePath, destPath, scale), TaskCreationOptions.LongRunning));
             //var tasks = allFiles.Select(filePath => Task.Run(() => ProcessImageAsync(filePath, destPath, scale)));
 
-            await Task.WhenAll(tasks);
+            var res = await Task.WhenAll(tasks);
+             
+            while (true)
+            {
+                if (res.All(t => t.Status == TaskStatus.RanToCompletion))
+                {
+                    break;
+                }
+            }
         }
 
 
@@ -79,6 +90,9 @@ namespace ImageResizer
 
         private async Task ProcessImageAsync(string filePath, string destPath, double scale)
         {
+            //var sw = new Stopwatch();
+            //sw.Start();
+            //Console.WriteLine($"{Thread.CurrentThread.ManagedThreadId} 開始");
             Image imgPhoto = Image.FromFile(filePath);
             string imgName = Path.GetFileNameWithoutExtension(filePath);
 
@@ -94,6 +108,9 @@ namespace ImageResizer
 
             string destFile = Path.Combine(destPath, imgName + ".jpg");
             processedImage.Save(destFile, ImageFormat.Jpeg);
+
+            //sw.Start();
+            //Console.WriteLine($"{Thread.CurrentThread.ManagedThreadId} 結束 {sw.ElapsedMilliseconds}");
         }
         /// <summary>
         /// 找出指定目錄下的圖片
