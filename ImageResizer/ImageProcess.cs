@@ -54,14 +54,23 @@ namespace ImageResizer
         {
             var allFiles = FindImages(sourcePath);
 
-            var tasks = allFiles.Select(filePath => Task.Factory.StartNew(() => ProcessImageAsync(filePath, destPath, scale), TaskCreationOptions.LongRunning));
-            //var tasks = allFiles.Select(filePath => Task.Run(() => ProcessImageAsync(filePath, destPath, scale)));
+            //var tasks = allFiles.Select(filePath => Task.Factory.StartNew(() => ProcessImageAsync(filePath, destPath, scale), TaskCreationOptions.LongRunning)).ToArray();
+            //var res = await Task.WhenAll(tasks);
 
-            var res = await Task.WhenAll(tasks);
-             
+            //while (true)
+            //{
+            //    if (res.All(t => t.Status == TaskStatus.RanToCompletion))
+            //    {
+            //        break;
+            //    }
+            //}
+
+            var tasks = allFiles.Select(filePath => ProcessImageAsync(filePath, destPath, scale)).ToArray();
+            await Task.WhenAll(tasks);
+
             while (true)
             {
-                if (res.All(t => t.Status == TaskStatus.RanToCompletion))
+                if (tasks.All(t => t.Status == TaskStatus.RanToCompletion))
                 {
                     break;
                 }
